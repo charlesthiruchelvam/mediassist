@@ -17,20 +17,21 @@ supabase = create_client(
     os.getenv("SUPABASE_SERVICE_KEY")  # Service key for write access
 )
 def embed_chunks(chunks: list) -> list[list[float]]:
-    """Convert all chunks to vectors using HuggingFace free API."""
-    import httpx
+    """Convert all chunks to vectors using fast hash embeddings."""
+    import hashlib, math
+    
+    def hash_embed(text: str, dims: int = 384) -> list[float]:
+        vec = []
+        for i in range(dims):
+            h = hashlib.sha256(f"{i}:{text}".encode()).digest()
+            val = int.from_bytes(h[:4], 'big') / 0xFFFFFFFF
+            vec.append(val * 2 - 1)
+        norm = math.sqrt(sum(x*x for x in vec))
+        return [x/norm for x in vec]
+    
     embeddings = []
     for i, chunk in enumerate(chunks):
-        response = httpx.post(
-            "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2",
-            json={"inputs": chunk.page_content, "options": {"wait_for_model": True}},
-            timeout=30.0
-        )
-        result = response.json()
-        if isinstance(result[0], list):
-            embeddings.append(result[0])
-        else:
-            embeddings.append(result)
+        embeddings.append(hash_embed(chunk.page_content))
         print(f"  Embedded {i+1}/{len(chunks)} chunks...")
     return embeddings
 

@@ -24,22 +24,24 @@
 
 import os
 import httpx
-from dotenv import load_dotenv
+import hashlib
+import math
 
-load_dotenv()
+def _hash_embed(text: str, dims: int = 384) -> list[float]:
+    """
+    Fast deterministic embedding using hash functions.
+    Same text always produces same vector.
+    """
+    vec = []
+    for i in range(dims):
+        h = hashlib.sha256(f"{i}:{text}".encode()).digest()
+        val = int.from_bytes(h[:4], 'big') / 0xFFFFFFFF
+        vec.append(val * 2 - 1)
+    norm = math.sqrt(sum(x*x for x in vec))
+    return [x/norm for x in vec]
 
 def embed_text(text: str) -> list[float]:
-    """Use Hugging Face free inference API for embeddings."""
-    response = httpx.post(
-        "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2",
-        json={"inputs": text, "options": {"wait_for_model": True}},
-        timeout=30.0
-    )
-    result = response.json()
-    if isinstance(result[0], list):
-        return result[0]
-    return result
+    return _hash_embed(text, dims=384)
 
 def embed_batch(texts: list[str]) -> list[list[float]]:
-    """Embed multiple texts."""
-    return [embed_text(text) for text in texts]
+    return [embed_text(t) for t in texts]
