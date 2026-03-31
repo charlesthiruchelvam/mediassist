@@ -23,25 +23,25 @@
     #return [item.embedding for item in response.data]
 
 import os
-import httpx
-import hashlib
-import math
+from dotenv import load_dotenv
 
-def _hash_embed(text: str, dims: int = 384) -> list[float]:
-    """
-    Fast deterministic embedding using hash functions.
-    Same text always produces same vector.
-    """
-    vec = []
-    for i in range(dims):
-        h = hashlib.sha256(f"{i}:{text}".encode()).digest()
-        val = int.from_bytes(h[:4], 'big') / 0xFFFFFFFF
-        vec.append(val * 2 - 1)
-    norm = math.sqrt(sum(x*x for x in vec))
-    return [x/norm for x in vec]
+load_dotenv()
+
+_model = None
+
+def get_model():
+    global _model
+    if _model is None:
+        from fastembed import TextEmbedding
+        _model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
+    return _model
 
 def embed_text(text: str) -> list[float]:
-    return _hash_embed(text, dims=384)
+    model = get_model()
+    embeddings = list(model.embed([text]))
+    return embeddings[0].tolist()
 
 def embed_batch(texts: list[str]) -> list[list[float]]:
-    return [embed_text(t) for t in texts]
+    model = get_model()
+    embeddings = list(model.embed(texts))
+    return [e.tolist() for e in embeddings]

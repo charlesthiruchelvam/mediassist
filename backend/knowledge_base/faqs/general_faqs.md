@@ -6,7 +6,7 @@ ICU visiting is restricted to immediate family only, 15 minutes per visit.
 
 ## How do I book an appointment?
 You can book an appointment by:
-1. Calling our hotline: 077-230-4355 (8am to 5pm, Monday to Saturday)
+1. Calling our hotline: 011-100-2000 (8am to 5pm, Monday to Saturday)
 2. Using the online portal at patient.hospital.lk
 3. Walking in to the outpatient registration desk
 

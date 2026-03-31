@@ -17,23 +17,14 @@ supabase = create_client(
     os.getenv("SUPABASE_SERVICE_KEY")  # Service key for write access
 )
 def embed_chunks(chunks: list) -> list[list[float]]:
-    """Convert all chunks to vectors using fast hash embeddings."""
-    import hashlib, math
-    
-    def hash_embed(text: str, dims: int = 384) -> list[float]:
-        vec = []
-        for i in range(dims):
-            h = hashlib.sha256(f"{i}:{text}".encode()).digest()
-            val = int.from_bytes(h[:4], 'big') / 0xFFFFFFFF
-            vec.append(val * 2 - 1)
-        norm = math.sqrt(sum(x*x for x in vec))
-        return [x/norm for x in vec]
-    
-    embeddings = []
-    for i, chunk in enumerate(chunks):
-        embeddings.append(hash_embed(chunk.page_content))
-        print(f"  Embedded {i+1}/{len(chunks)} chunks...")
-    return embeddings
+    """Use FastEmbed for fast accurate embeddings."""
+    from fastembed import TextEmbedding
+    model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
+    texts = [chunk.page_content for chunk in chunks]
+    embeddings = list(model.embed(texts))
+    print(f"  Embedded {len(chunks)}/{len(chunks)} chunks...")
+    return [e.tolist() for e in embeddings]
+
 
 #def embed_chunks(chunks: list) -> list[list[float]]:
     #"""Convert all chunks to vectors using free local model."""
