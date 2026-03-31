@@ -17,12 +17,30 @@ supabase = create_client(
     os.getenv("SUPABASE_SERVICE_KEY")  # Service key for write access
 )
 def embed_chunks(chunks: list) -> list[list[float]]:
-    """Convert all chunks to vectors using free local model."""
-    from sentence_transformers import SentenceTransformer
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    texts = [chunk.page_content for chunk in chunks]
-    embeddings = model.encode(texts, show_progress_bar=True)
-    return embeddings.tolist()
+    """Convert all chunks to vectors using HuggingFace free API."""
+    import httpx
+    embeddings = []
+    for i, chunk in enumerate(chunks):
+        response = httpx.post(
+            "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2",
+            json={"inputs": chunk.page_content, "options": {"wait_for_model": True}},
+            timeout=30.0
+        )
+        result = response.json()
+        if isinstance(result[0], list):
+            embeddings.append(result[0])
+        else:
+            embeddings.append(result)
+        print(f"  Embedded {i+1}/{len(chunks)} chunks...")
+    return embeddings
+
+#def embed_chunks(chunks: list) -> list[list[float]]:
+    #"""Convert all chunks to vectors using free local model."""
+    #from sentence_transformers import SentenceTransformer
+    #model = SentenceTransformer("all-MiniLM-L6-v2")
+    #texts = [chunk.page_content for chunk in chunks]
+    #embeddings = model.encode(texts, show_progress_bar=True)
+    #return embeddings.tolist()
 #def embed_chunks(chunks: list) -> list[list[float]]:
     #"""Convert all chunks to vectors using OpenAI embeddings."""
     #texts = [chunk.page_content for chunk in chunks]

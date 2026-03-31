@@ -22,14 +22,24 @@
     #)
     #return [item.embedding for item in response.data]
 
-from sentence_transformers import SentenceTransformer
+import os
+import httpx
+from dotenv import load_dotenv
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+load_dotenv()
 
 def embed_text(text: str) -> list[float]:
-    embedding = model.encode([text])
-    return embedding[0].tolist()
+    """Use Hugging Face free inference API for embeddings."""
+    response = httpx.post(
+        "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2",
+        json={"inputs": text, "options": {"wait_for_model": True}},
+        timeout=30.0
+    )
+    result = response.json()
+    if isinstance(result[0], list):
+        return result[0]
+    return result
 
 def embed_batch(texts: list[str]) -> list[list[float]]:
-    embeddings = model.encode(texts)
-    return embeddings.tolist()
+    """Embed multiple texts."""
+    return [embed_text(text) for text in texts]
