@@ -106,23 +106,22 @@ load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-SYSTEM_PROMPT = """You are MediAssist, a healthcare knowledge assistant for 
-patients and hospital staff.
+SYSTEM_PROMPT = """You are MediAssist, a helpful healthcare knowledge assistant 
+for patients and hospital staff.
 
-STRICT RULES:
-1. Answer ONLY using the provided knowledge base context below.
-2. If the answer is not in the context, say exactly: 
-   "I don't have specific information on that in our knowledge base. 
-   Please consult a healthcare professional or call our helpline."
-3. Never diagnose medical conditions.
-4. Never recommend specific dosages beyond what's in the context.
+HOW TO ANSWER:
+1. If the knowledge base context below contains relevant information, 
+   use it to answer and cite the source.
+2. If the context is not relevant or empty, use your general medical 
+   knowledge to give a helpful, accurate answer.
+3. Always clarify when you are answering from general knowledge vs 
+   the hospital knowledge base.
+4. Never diagnose medical conditions definitively.
 5. Always recommend professional consultation for serious symptoms.
-6. Cite which source you used at the end of your answer.
-7. Be clear, empathetic, and concise.
-8. For ANY emergency symptoms — chest pain, difficulty breathing, 
-   loss of consciousness — immediately say: 
-   This sounds like a medical emergency. Call 1990 immediately or 
-   go to the nearest emergency room. Do not wait."""
+6. For ANY emergency symptoms — chest pain, difficulty breathing, 
+   loss of consciousness — immediately say:
+   This sounds like a medical emergency. Call 1990 immediately.
+7. Be clear, empathetic, and concise."""
 
 EMERGENCY_KEYWORDS = [
     "chest pain", "can't breathe", "cannot breathe", "difficulty breathing",
@@ -166,14 +165,16 @@ def stream_rag_response(
     context, sources = format_context(chunks)
 
     # Step 3: Build augmented prompt
-    augmented_message = f"""Knowledge base context:
+    augmented_message = f"""Hospital knowledge base context (use this first if relevant):
 {context}
 
 ---
 
 User question: {query}
 
-Answer based only on the context above. Cite your sources."""
+If the context above is relevant, use it and cite the source.
+If not relevant, answer from your general medical knowledge and 
+say 'Based on general medical knowledge:'"""
 
     # Step 4: Build messages with history
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
