@@ -27,21 +27,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-_model = None
-
-def get_model():
-    global _model
-    if _model is None:
-        from fastembed import TextEmbedding
-        _model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
-    return _model
+# Load model at startup — not on first request
+print("Loading FastEmbed model...")
+from fastembed import TextEmbedding
+_model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
+print("FastEmbed model loaded successfully!")
 
 def embed_text(text: str) -> list[float]:
-    model = get_model()
-    embeddings = list(model.embed([text]))
+    embeddings = list(_model.embed([text]))
     return embeddings[0].tolist()
 
 def embed_batch(texts: list[str]) -> list[list[float]]:
-    model = get_model()
-    embeddings = list(model.embed(texts))
+    embeddings = list(_model.embed(texts))
     return [e.tolist() for e in embeddings]
