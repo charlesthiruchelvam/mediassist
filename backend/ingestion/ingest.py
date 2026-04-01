@@ -51,29 +51,6 @@ def embed_chunks(chunks: list) -> list[list[float]]:
         print(f"  Embedded {i+1}/{len(chunks)} chunks...")
     return embeddings
 
-#def embed_chunks(chunks: list) -> list[list[float]]:
-    #"""Convert all chunks to vectors using free local model."""
-    #from sentence_transformers import SentenceTransformer
-    #model = SentenceTransformer("all-MiniLM-L6-v2")
-    #texts = [chunk.page_content for chunk in chunks]
-    #embeddings = model.encode(texts, show_progress_bar=True)
-    #return embeddings.tolist()
-#def embed_chunks(chunks: list) -> list[list[float]]:
-    #"""Convert all chunks to vectors using OpenAI embeddings."""
-    #texts = [chunk.page_content for chunk in chunks]
-    #embeddings = []
-    #batch_size = 100
-
-    #for i in range(0, len(texts), batch_size):
-        #batch = texts[i:i + batch_size]
-        #response = openai_client.embeddings.create(
-            #input=batch,
-            #model="text-embedding-3-small"
-        #)
-        #embeddings.extend([e.embedding for e in response.data])
-        #print(f"  Embedded {min(i + batch_size, len(texts))}/{len(texts)} chunks...")
-
-    #return embeddings
 
 def upsert_to_supabase(chunks: list, embeddings: list) -> None:
     """Store all chunks and their embeddings in Supabase."""
