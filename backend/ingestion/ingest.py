@@ -17,14 +17,39 @@ supabase = create_client(
     os.getenv("SUPABASE_SERVICE_KEY")  # Service key for write access
 )
 def embed_chunks(chunks: list) -> list[list[float]]:
-    """Use FastEmbed for fast accurate embeddings."""
-    from fastembed import TextEmbedding
-    model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
-    texts = [chunk.page_content for chunk in chunks]
-    embeddings = list(model.embed(texts))
-    print(f"  Embedded {len(chunks)}/{len(chunks)} chunks...")
-    return [e.tolist() for e in embeddings]
-
+    """Use improved n-gram embeddings."""
+    import hashlib, math
+    
+    def embed_text(text: str) -> list[float]:
+        text = text.lower().strip()
+        dims = 384
+        vec = [0.0] * dims
+        for n in [2, 3, 4]:
+            for i in range(len(text) - n + 1):
+                ngram = text[i:i+n]
+                h = int(hashlib.md5(ngram.encode()).hexdigest(), 16)
+                idx = h % dims
+                vec[idx] += 1.0 / (n * n)
+        words = text.split()
+        for i, word in enumerate(words):
+            h = int(hashlib.md5(word.encode()).hexdigest(), 16)
+            idx = h % dims
+            vec[idx] += 2.0
+            if i < len(words) - 1:
+                bigram = word + " " + words[i+1]
+                h2 = int(hashlib.md5(bigram.encode()).hexdigest(), 16)
+                idx2 = h2 % dims
+                vec[idx2] += 1.5
+        norm = math.sqrt(sum(x*x for x in vec))
+        if norm > 0:
+            vec = [x/norm for x in vec]
+        return vec
+    
+    embeddings = []
+    for i, chunk in enumerate(chunks):
+        embeddings.append(embed_text(chunk.page_content))
+        print(f"  Embedded {i+1}/{len(chunks)} chunks...")
+    return embeddings
 
 #def embed_chunks(chunks: list) -> list[list[float]]:
     #"""Convert all chunks to vectors using free local model."""
