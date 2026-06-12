@@ -1,10 +1,10 @@
 cd ~/Desktop/mediassist
 cat > README.md << 'EOF'
-# 🏥 MediAssist — AI-Powered Healthcare Knowledge Assistant
+#  MediAssist — AI-Powered Healthcare Knowledge Assistant
 
 A RAG-based healthcare assistant that answers patient and staff queries by retrieving answers from a curated medical knowledge base — covering drug information, symptom guides, hospital policies, and appointment workflows.
 
-## 🌐 Live Demo
+##  Live Demo
 **[https://mediassist-two.vercel.app](https://mediassist-two.vercel.app)**
 
 ## ✨ Features
@@ -15,7 +15,7 @@ A RAG-based healthcare assistant that answers patient and staff queries by retri
 - **Source Citations** — every answer shows which document it came from with a relevance score
 - **Hybrid Mode** — knowledge base first, general medical knowledge as fallback
 
-## 🛠️ Tech Stack
+##  Tech Stack
 | Layer | Technology |
 |-------|------------|
 | Frontend | Next.js 16, TypeScript, Tailwind CSS |
@@ -25,7 +25,7 @@ A RAG-based healthcare assistant that answers patient and staff queries by retri
 | Embeddings | N-gram semantic embeddings (384 dims) |
 | Deployment | Vercel (frontend) + Railway (backend) |
 
-## 🏗️ Architecture
+##  Architecture
 ```
 User Question
      ↓
@@ -42,7 +42,7 @@ Groq LLM Generation (streaming)
 Streamed Response to UI
 ```
 
-## 🚀 Running Locally
+##  Running Locally
 
 ### Prerequisites
 - Python 3.10+
@@ -74,7 +74,7 @@ cp .env.local.example .env.local  # Add NEXT_PUBLIC_API_URL
 npm run dev
 ```
 
-## 📁 Project Structure
+##  Project Structure
 ```
 mediassist/
 ├── backend/
@@ -92,7 +92,7 @@ mediassist/
         └── page.tsx             # Chat UI
 ```
 
-## 📄 License
+##  License
 MIT License — feel free to use and adapt for your own healthcare projects.
 
 ---
