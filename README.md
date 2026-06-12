@@ -7,7 +7,7 @@ A RAG-based healthcare assistant that answers patient and staff queries by retri
 ##  Live Demo
 **[https://mediassist-two.vercel.app](https://mediassist-two.vercel.app)**
 
-## ✨ Features
+##  Features
 - **RAG Pipeline** — retrieves relevant knowledge before answering, preventing hallucination
 - **20 Knowledge Base Documents** — drugs, symptoms, hospital policies, appointment workflows
 - **Emergency Detection** — automatically detects emergency keywords and directs to emergency services
